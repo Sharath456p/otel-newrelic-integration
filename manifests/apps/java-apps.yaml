@@ -1,0 +1,115 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: callsign-b-a
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: java-service-1
+  namespace: services
+  labels:
+    app: java-service-1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: java-service-1
+  template:
+    metadata:
+      labels:
+        app: java-service-1
+    spec:
+      containers:
+      - name: java-app
+        image: simonpasquier/prometheus-java-app:latest
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: java-service-1
+  namespace: services
+  labels:
+    app: java-service-1
+spec:
+  selector:
+    app: java-service-1
+  ports:
+  - port: 8080
+    targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: java-service-2
+  namespace: services
+  labels:
+    app: java-service-2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: java-service-2
+  template:
+    metadata:
+      labels:
+        app: java-service-2
+    spec:
+      containers:
+      - name: java-app
+        image: simonpasquier/prometheus-java-app:latest
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: java-service-2
+  namespace: services
+  labels:
+    app: java-service-2
+spec:
+  selector:
+    app: java-service-2
+  ports:
+  - port: 8080
+    targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: java-service-3
+  namespace: callsign-b-a
+  labels:
+    app: java-service-3
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: java-service-3
+  template:
+    metadata:
+      labels:
+        app: java-service-3
+    spec:
+      containers:
+      - name: java-app
+        image: simonpasquier/prometheus-java-app:latest
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: java-service-3
+  namespace: callsign-b-a
+  labels:
+    app: java-service-3
+spec:
+  selector:
+    app: java-service-3
+  ports:
+  - port: 8080
+    targetPort: 8080

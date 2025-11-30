@@ -1,0 +1,6 @@
+{
+  "artifactType": "ARTIFACT_TYPE_TASK",
+  "summary": "Added tasks for OTEL Collector Agent and Gateway deployment.",
+  "updatedAt": "2025-11-29T20:47:34.445570Z",
+  "version": "10"
+}

@@ -1,0 +1,137 @@
+{
+    "name": "Kubernetes Overview (OTEL)",
+    "description": "Comprehensive overview of Kubernetes Cluster Metrics collected via OpenTelemetry kubeletstats and k8s_cluster receivers.",
+    "pages": [
+        {
+            "name": "Cluster Health",
+            "widgets": [
+                {
+                    "title": "Pods by Phase",
+                    "layout": {
+                        "column": 1,
+                        "row": 1,
+                        "width": 4,
+                        "height": 3
+                    },
+                    "visualization": {
+                        "id": "viz.pie",
+                        "nrql": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT count(*) FROM Metric WHERE metricName = 'k8s.pod.phase' FACET phase"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Node Conditions",
+                    "layout": {
+                        "column": 5,
+                        "row": 1,
+                        "width": 4,
+                        "height": 3
+                    },
+                    "visualization": {
+                        "id": "viz.table",
+                        "nrql": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT latest(k8s.node.condition) FROM Metric FACET k8s.node.name, condition"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Deployments Available",
+                    "layout": {
+                        "column": 9,
+                        "row": 1,
+                        "width": 4,
+                        "height": 3
+                    },
+                    "visualization": {
+                        "id": "viz.billboard",
+                        "nrql": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT latest(k8s.deployment.available) FROM Metric FACET k8s.deployment.name"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Container CPU Usage (Cores)",
+                    "layout": {
+                        "column": 1,
+                        "row": 4,
+                        "width": 6,
+                        "height": 3
+                    },
+                    "visualization": {
+                        "id": "viz.area",
+                        "nrql": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT sum(container.cpu.usage) FROM Metric FACET k8s.pod.name, k8s.container.name TIMESERIES"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Container Memory Usage (Bytes)",
+                    "layout": {
+                        "column": 7,
+                        "row": 4,
+                        "width": 6,
+                        "height": 3
+                    },
+                    "visualization": {
+                        "id": "viz.area",
+                        "nrql": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT sum(container.memory.usage) FROM Metric FACET k8s.pod.name, k8s.container.name TIMESERIES"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Recent Kubernetes Events",
+                    "layout": {
+                        "column": 1,
+                        "row": 7,
+                        "width": 12,
+                        "height": 4
+                    },
+                    "visualization": {
+                        "id": "viz.table",
+                        "nrql": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT timestamp, message, reason, k8s.object.kind, k8s.object.name FROM Log WHERE instrumentation.provider = 'k8s_events' LIMIT 50"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Volume Storage Usage",
+                    "layout": {
+                        "column": 1,
+                        "row": 11,
+                        "width": 6,
+                        "height": 3
+                    },
+                    "visualization": {
+                        "id": "viz.line",
+                        "nrql": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT average(k8s.volume.available) FROM Metric FACET k8s.pod.name, k8s.volume.name TIMESERIES"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}

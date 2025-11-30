@@ -1,0 +1,6 @@
+{
+  "artifactType": "ARTIFACT_TYPE_IMPLEMENTATION_PLAN",
+  "summary": "Plan to deploy OTEL Collector Agent and Gateway with New Relic export.",
+  "updatedAt": "2025-11-29T20:47:35.041093Z",
+  "version": "2"
+}

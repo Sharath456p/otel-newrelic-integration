@@ -1,0 +1,232 @@
+{
+    "name": "Kubernetes / Compute Resources (OTLP)",
+    "description": "Compute resources overview using OpenTelemetry metrics (kubeletstats + k8s_cluster).",
+    "permissions": "PUBLIC_READ_WRITE",
+    "pages": [
+        {
+            "name": "By Node",
+            "widgets": [
+                {
+                    "title": "Cluster-wide CPU Requests Commitment By Percentage",
+                    "layout": {
+                        "column": 1,
+                        "row": 1,
+                        "width": 3,
+                        "height": 2
+                    },
+                    "visualization": {
+                        "id": "viz.billboard"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT sum(k8s.container.cpu_request) / 2 * 100 AS 'CPU Requests Commitment' FROM Metric"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Cluster-wide CPU Limits Commitment by Percentage",
+                    "layout": {
+                        "column": 4,
+                        "row": 1,
+                        "width": 3,
+                        "height": 2
+                    },
+                    "visualization": {
+                        "id": "viz.billboard"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT sum(k8s.container.cpu_limit) / 2 * 100 AS 'CPU Limits Commitment' FROM Metric"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Cluster-wide Memory Requests Commitment By Percentage",
+                    "layout": {
+                        "column": 7,
+                        "row": 1,
+                        "width": 3,
+                        "height": 2
+                    },
+                    "visualization": {
+                        "id": "viz.billboard"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT sum(k8s.container.memory_request) / 3e9 * 100 AS 'Memory Requests Commitment' FROM Metric"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Cluster-wide Memory Limits Commitment By Percentage",
+                    "layout": {
+                        "column": 10,
+                        "row": 1,
+                        "width": 3,
+                        "height": 2
+                    },
+                    "visualization": {
+                        "id": "viz.billboard"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT sum(k8s.container.memory_limit) / 3e9 * 100 AS 'Memory Limits Commitment' FROM Metric"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Pod CPU Usage by Node (%)",
+                    "layout": {
+                        "column": 1,
+                        "row": 3,
+                        "width": 12,
+                        "height": 4
+                    },
+                    "visualization": {
+                        "id": "viz.area"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT rate(sum(container.cpu.usage), 1 minute) * 100 FROM Metric WHERE k8s.namespace.name = {{namespace}} OR {{namespace}} IS NULL FACET k8s.node.name TIMESERIES AUTO"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Cluster-wide CPU Quota",
+                    "layout": {
+                        "column": 1,
+                        "row": 7,
+                        "width": 12,
+                        "height": 4
+                    },
+                    "visualization": {
+                        "id": "viz.table"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT rate(sum(container.cpu.usage), 1 minute) * 100 as 'CPU Usage', sum(k8s.container.cpu_request) as 'CPU Requests', sum(k8s.container.cpu_limit) as 'CPU Limits' FROM Metric WHERE k8s.namespace.name = {{namespace}} OR {{namespace}} IS NULL FACET k8s.node.name LIMIT 100"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Memory Usage (Pod only)",
+                    "layout": {
+                        "column": 1,
+                        "row": 11,
+                        "width": 12,
+                        "height": 4
+                    },
+                    "visualization": {
+                        "id": "viz.area"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT sum(container.memory.working_set) FROM Metric WHERE k8s.namespace.name = {{namespace}} OR {{namespace}} IS NULL FACET k8s.node.name TIMESERIES AUTO"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Cluster-Wide Memory Quota",
+                    "layout": {
+                        "column": 1,
+                        "row": 15,
+                        "width": 12,
+                        "height": 4
+                    },
+                    "visualization": {
+                        "id": "viz.table"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT sum(container.memory.working_set) as 'Memory Usage', sum(k8s.container.memory_request) as 'Memory Requests', sum(k8s.container.memory_limit) as 'Memory Limits' FROM Metric WHERE k8s.namespace.name = {{namespace}} OR {{namespace}} IS NULL FACET k8s.node.name LIMIT 100"
+                            }
+                        ]
+                    }
+                },
+            ]
+        },
+        {
+            "name": "By Pod",
+            "widgets": [
+                {
+                    "title": "Pod CPU Usage (%)",
+                    "layout": {
+                        "column": 1,
+                        "row": 1,
+                        "width": 12,
+                        "height": 4
+                    },
+                    "visualization": {
+                        "id": "viz.area"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT rate(sum(container.cpu.usage), 1 minute) * 100 FROM Metric WHERE k8s.namespace.name = {{namespace}} OR {{namespace}} IS NULL FACET k8s.pod.name TIMESERIES AUTO"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Pod Memory Usage",
+                    "layout": {
+                        "column": 1,
+                        "row": 5,
+                        "width": 12,
+                        "height": 4
+                    },
+                    "visualization": {
+                        "id": "viz.area"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT sum(container.memory.working_set) FROM Metric WHERE k8s.namespace.name = {{namespace}} OR {{namespace}} IS NULL FACET k8s.pod.name TIMESERIES AUTO"
+                            }
+                        ]
+                    }
+                },
+            ]
+        }
+    ],
+    "variables": [
+        {
+            "name": "namespace",
+            "title": "Namespace",
+            "type": "NRQL",
+            "nrqlQuery": {
+                "accountIds": [
+                    7420509
+                ],
+                "query": "SELECT uniques(k8s.namespace.name) FROM Metric"
+            },
+            "isMultiSelection": false,
+            "replacementStrategy": "STRING"
+        }
+    ]
+}

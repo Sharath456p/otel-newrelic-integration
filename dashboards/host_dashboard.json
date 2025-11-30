@@ -1,0 +1,115 @@
+{
+  "name": "Host Metrics Overview (OTEL)",
+  "description": "Comprehensive overview of Host Metrics collected via OpenTelemetry hostmetrics receiver.",
+  "pages": [
+    {
+      "name": "Overview",
+      "widgets": [
+        {
+          "title": "CPU Utilization (%)",
+          "layout": { "column": 1, "row": 1, "width": 4, "height": 3 },
+          "visualization": {
+            "id": "viz.line",
+            "nrql": [
+              {
+                "accountId": 7420509,
+                "query": "SELECT average(system.cpu.utilization) * 100 FROM Metric FACET host.name TIMESERIES"
+              }
+            ]
+          }
+        },
+        {
+          "title": "Memory Utilization (%)",
+          "layout": { "column": 5, "row": 1, "width": 4, "height": 3 },
+          "visualization": {
+            "id": "viz.line",
+            "nrql": [
+              {
+                "accountId": 7420509,
+                "query": "SELECT average(system.memory.utilization) * 100 FROM Metric FACET host.name TIMESERIES"
+              }
+            ]
+          }
+        },
+        {
+          "title": "System Load (15m)",
+          "layout": { "column": 9, "row": 1, "width": 4, "height": 3 },
+          "visualization": {
+            "id": "viz.line",
+            "nrql": [
+              {
+                "accountId": 7420509,
+                "query": "SELECT average(system.cpu.load_average.15m) FROM Metric FACET host.name TIMESERIES"
+              }
+            ]
+          }
+        },
+        {
+          "title": "Disk Usage (%)",
+          "layout": { "column": 1, "row": 4, "width": 4, "height": 3 },
+          "visualization": {
+            "id": "viz.line",
+            "nrql": [
+              {
+                "accountId": 7420509,
+                "query": "SELECT average(system.filesystem.utilization) * 100 FROM Metric FACET host.name, device TIMESERIES"
+              }
+            ]
+          }
+        },
+        {
+          "title": "Network Traffic (Bytes/sec)",
+          "layout": { "column": 5, "row": 4, "width": 4, "height": 3 },
+          "visualization": {
+            "id": "viz.area",
+            "nrql": [
+              {
+                "accountId": 7420509,
+                "query": "SELECT rate(sum(system.network.io), 1 minute) FROM Metric FACET host.name, direction TIMESERIES"
+              }
+            ]
+          }
+        },
+        {
+          "title": "Running Processes",
+          "layout": { "column": 9, "row": 4, "width": 4, "height": 3 },
+          "visualization": {
+            "id": "viz.line",
+            "nrql": [
+              {
+                "accountId": 7420509,
+                "query": "SELECT average(system.processes.count) FROM Metric WHERE status = 'running' FACET host.name TIMESERIES"
+              }
+            ]
+          }
+        },
+        {
+          "title": "Swap Usage (%)",
+          "layout": { "column": 1, "row": 7, "width": 4, "height": 3 },
+          "visualization": {
+            "id": "viz.line",
+            "nrql": [
+              {
+                "accountId": 7420509,
+                "query": "SELECT average(system.paging.usage) FROM Metric WHERE state = 'used' FACET host.name TIMESERIES"
+              }
+            ]
+          }
+        },
+        {
+          "title": "Disk I/O Operations",
+          "layout": { "column": 5, "row": 7, "width": 4, "height": 3 },
+          "visualization": {
+            "id": "viz.line",
+            "nrql": [
+              {
+                "accountId": 7420509,
+                "query": "SELECT rate(sum(system.disk.operations), 1 minute) FROM Metric FACET host.name, direction TIMESERIES"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

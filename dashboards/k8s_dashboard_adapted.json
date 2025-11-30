@@ -1,0 +1,292 @@
+{
+    "name": "Kubernetes Dashboard (OTLP Adapted)",
+    "description": "High level overview of Kubernetes instances using OpenTelemetry metrics.",
+    "permissions": "PUBLIC_READ_WRITE",
+    "pages": [
+        {
+            "name": "Kubernetes",
+            "widgets": [
+                {
+                    "title": "Resources Used",
+                    "layout": {
+                        "column": 1,
+                        "row": 1,
+                        "width": 4,
+                        "height": 3
+                    },
+                    "visualization": {
+                        "id": "viz.billboard"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT sum(k8s.node.cpu.usage) AS Cores, sum(k8s.node.memory.usage) / 1e9 AS `Mem GB` FROM Metric"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "# of K8s Objects",
+                    "layout": {
+                        "column": 5,
+                        "row": 1,
+                        "width": 4,
+                        "height": 3
+                    },
+                    "visualization": {
+                        "id": "viz.billboard"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT uniqueCount(k8s.node.name) as Nodes, uniqueCount(k8s.namespace.name) as Namespaces, uniqueCount(k8s.deployment.name) as Deployments, uniqueCount(k8s.pod.name) as Pods, uniqueCount(k8s.container.name) as Containers FROM Metric"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Namespaces per Cluster",
+                    "layout": {
+                        "column": 1,
+                        "row": 4,
+                        "width": 4,
+                        "height": 3
+                    },
+                    "visualization": {
+                        "id": "viz.bar"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT uniqueCount(k8s.namespace.name) FROM Metric LIMIT 100"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Pods by Namespace",
+                    "layout": {
+                        "column": 5,
+                        "row": 4,
+                        "width": 4,
+                        "height": 3
+                    },
+                    "visualization": {
+                        "id": "viz.bar"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT uniqueCount(k8s.pod.name) AS `pod` FROM Metric FACET k8s.namespace.name LIMIT 100"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Container Restarts",
+                    "layout": {
+                        "column": 9,
+                        "row": 4,
+                        "width": 4,
+                        "height": 3
+                    },
+                    "visualization": {
+                        "id": "viz.area"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT max(k8s.container.restarts) - min(k8s.container.restarts) AS `Restarts` FROM Metric FACET k8s.pod.name, k8s.container.name LIMIT 50 TIMESERIES AUTO"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Container CPU Usage",
+                    "layout": {
+                        "column": 1,
+                        "row": 7,
+                        "width": 4,
+                        "height": 3
+                    },
+                    "visualization": {
+                        "id": "viz.line"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT rate(sum(container.cpu.usage), 1 minute) FROM Metric FACET k8s.pod.name, k8s.container.name LIMIT 50 TIMESERIES AUTO"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Container Memory Usage",
+                    "layout": {
+                        "column": 5,
+                        "row": 7,
+                        "width": 4,
+                        "height": 3
+                    },
+                    "visualization": {
+                        "id": "viz.line"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT average(container.memory.working_set) FROM Metric FACET k8s.pod.name, k8s.container.name LIMIT 50 TIMESERIES AUTO"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Volume Available",
+                    "layout": {
+                        "column": 9,
+                        "row": 7,
+                        "width": 4,
+                        "height": 3
+                    },
+                    "visualization": {
+                        "id": "viz.line"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT average(k8s.volume.available) FROM Metric FACET k8s.pod.name, k8s.volume.name TIMESERIES AUTO"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Container CPU Cores Used",
+                    "layout": {
+                        "column": 1,
+                        "row": 10,
+                        "width": 4,
+                        "height": 3
+                    },
+                    "visualization": {
+                        "id": "viz.line"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT average(container.cpu.usage) AS `CPU Cores Used` FROM Metric FACET k8s.pod.name, k8s.container.name LIMIT 50 TIMESERIES AUTO"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Container MBytes of Memory Used",
+                    "layout": {
+                        "column": 5,
+                        "row": 10,
+                        "width": 4,
+                        "height": 3
+                    },
+                    "visualization": {
+                        "id": "viz.line"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT average(container.memory.working_set) / 1e6 AS `MB of Mem` FROM Metric FACET k8s.pod.name, k8s.container.name LIMIT 50 TIMESERIES AUTO"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Missing Pods by Deployment",
+                    "layout": {
+                        "column": 9,
+                        "row": 10,
+                        "width": 4,
+                        "height": 3
+                    },
+                    "visualization": {
+                        "id": "viz.area"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT latest(k8s.replicaset.desired) - latest(k8s.replicaset.available) AS `Missing Pods` FROM Metric FACET k8s.replicaset.name LIMIT 50 TIMESERIES AUTO"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Latest pods not Running",
+                    "layout": {
+                        "column": 1,
+                        "row": 13,
+                        "width": 8,
+                        "height": 3
+                    },
+                    "visualization": {
+                        "id": "viz.table"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT latest(value) as Status FROM Metric WHERE metricName = 'k8s.pod.phase' AND value != 2 FACET k8s.pod.name LIMIT 100"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Node Resource Consumption",
+                    "layout": {
+                        "column": 1,
+                        "row": 16,
+                        "width": 8,
+                        "height": 3
+                    },
+                    "visualization": {
+                        "id": "viz.table"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT latest(k8s.node.cpu.usage) AS `Used Cores`, latest(k8s.node.memory.usage) / 1e6 AS `Used Memory MB` FROM Metric FACET k8s.node.name LIMIT 100"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Active Pods by Deployment",
+                    "layout": {
+                        "column": 9,
+                        "row": 16,
+                        "width": 4,
+                        "height": 3
+                    },
+                    "visualization": {
+                        "id": "viz.line"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT latest(k8s.replicaset.available) FROM Metric FACET k8s.replicaset.name LIMIT 50 TIMESERIES AUTO"
+                            }
+                        ]
+                    }
+                },
+            ]
+        },
+    ]
+}
