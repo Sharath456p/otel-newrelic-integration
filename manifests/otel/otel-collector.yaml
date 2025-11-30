@@ -64,6 +64,93 @@ spec:
         extra_metadata_labels:
           - container.id
           - k8s.volume.type
+      prometheus:
+        config:
+          scrape_configs:
+            - job_name: 'kubernetes-pods'
+              kubernetes_sd_configs:
+                - role: pod
+              relabel_configs:
+                - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+                  action: keep
+                  regex: true
+                - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+                  action: replace
+                  target_label: __metrics_path__
+                  regex: (.+)
+                - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+                  action: replace
+                  regex: ([^:]+)(?::\d+)?;(\d+)
+                  replacement: $1:$2
+                  target_label: __address__
+                - action: labelmap
+                  regex: __meta_kubernetes_pod_label_(.+)
+                - source_labels: [__meta_kubernetes_namespace]
+                  action: replace
+                  target_label: k8s.namespace.name
+                - source_labels: [__meta_kubernetes_pod_name]
+                  action: replace
+                  target_label: k8s.pod.name
+            - job_name: 'flux-system'
+              kubernetes_sd_configs:
+                - role: pod
+                  namespaces:
+                    names:
+                      - flux-system
+              relabel_configs:
+                - source_labels: [__meta_kubernetes_pod_container_port_name]
+                  action: keep
+                  regex: http-prom
+                - source_labels: [__meta_kubernetes_pod_phase]
+                  action: keep
+                  regex: Running
+                - source_labels: [__meta_kubernetes_namespace]
+                  action: replace
+                  target_label: k8s.namespace.name
+                - source_labels: [__meta_kubernetes_pod_name]
+                  action: replace
+                  target_label: k8s.pod.name
+                - source_labels: [__meta_kubernetes_pod_label_app]
+                  action: replace
+                  target_label: app
+            - job_name: 'istio-control-plane'
+              kubernetes_sd_configs:
+                - role: pod
+                  namespaces:
+                    names:
+                      - istio-system
+              relabel_configs:
+                - source_labels: [__meta_kubernetes_pod_container_port_name]
+                  action: keep
+                  regex: http-monitoring
+                - source_labels: [__meta_kubernetes_pod_phase]
+                  action: keep
+                  regex: Running
+                - source_labels: [__meta_kubernetes_pod_name]
+                  action: replace
+                  target_label: k8s.pod.name
+                - source_labels: [__meta_kubernetes_namespace]
+                  action: replace
+                  target_label: k8s.namespace.name
+            - job_name: 'istio-sidecar'
+              kubernetes_sd_configs:
+                - role: pod
+              relabel_configs:
+                - source_labels: [__meta_kubernetes_pod_label_security_istio_io_tlsMode]
+                  action: keep
+                  regex: istio
+                - source_labels: [__meta_kubernetes_pod_container_port_name]
+                  action: keep
+                  regex: http-envoy-prom
+                - source_labels: [__meta_kubernetes_pod_phase]
+                  action: keep
+                  regex: Running
+                - source_labels: [__meta_kubernetes_pod_name]
+                  action: replace
+                  target_label: k8s.pod.name
+                - source_labels: [__meta_kubernetes_namespace]
+                  action: replace
+                  target_label: k8s.namespace.name
       filelog:
         include:
           - /hostfs/var/log/pods/*/*/*.log
@@ -158,7 +245,7 @@ spec:
     service:
       pipelines:
         metrics:
-          receivers: [hostmetrics, kubeletstats]
+          receivers: [hostmetrics, kubeletstats, prometheus]
           processors: [resourcedetection, resource, k8sattributes, resource/drop, transform, memory_limiter, batch]
           exporters: [otlp]
         logs:

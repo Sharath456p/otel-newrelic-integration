@@ -8,7 +8,8 @@ This project demonstrates a complete observability pipeline using OpenTelemetry 
 *   **GitOps**: Flux CD syncing application manifests from an internal git repository.
 *   **Internal Git**: Gitea running inside the cluster to simulate a private corporate git server.
 *   **Applications**: 3 Dummy Java Microservices (Spring Boot) exposing Prometheus metrics.
-*   **Dashboards**: Custom New Relic dashboards for Kubernetes and Host metrics.
+*   **Istio Service Mesh**: Sidecar injection enabled for `services` namespace, with metrics scraped by OTEL.
+*   **Dashboards**: Production-grade New Relic dashboards for Kubernetes, Host, Flux CD, and Istio Mesh.
 
 ## Directory Structure
 
@@ -121,6 +122,27 @@ Flux will now detect the changes in Gitea and deploy the 3 Java microservices to
     kubectl apply -f manifests/otel/otel-collector.yaml
     ```
 
+### 7. Deploy Istio Service Mesh
+
+1.  **Install Istio**:
+    ```bash
+    helm repo add istio https://istio-release.storage.googleapis.com/charts
+    helm repo update
+    helm install istio-base istio/base -n istio-system --create-namespace
+    helm install istiod istio/istiod -n istio-system --wait
+    ```
+
+2.  **Enable Sidecar Injection**:
+    ```bash
+    kubectl label namespace services istio-injection=enabled
+    ```
+    *Note: The `java-apps.yaml` manifest has been updated to include this label and resource limits (`10m` CPU) to run on Minikube.*
+
+3.  **Restart Apps**:
+    ```bash
+    kubectl rollout restart deployment -n services
+    ```
+
 ## Verification
 
 *   **Check Pods**: `kubectl get pods -n services`
@@ -131,6 +153,13 @@ Flux will now detect the changes in Gitea and deploy the 3 Java microservices to
 ## Dashboards
 
 Import the JSON files in `dashboards/` into New Relic to visualize:
-*   Cluster Health
-*   Compute Resources
-*   Host Metrics
+
+1.  **Cluster Health** (`k8s_dashboard_adapted.json`)
+2.  **Compute Resources** (`compute_resources_dashboard.json`)
+3.  **Host Metrics** (`host_dashboard.json`)
+4.  **Flux CD Overview** (`flux_dashboard.json`): Monitor reconciliation rates and controller health.
+5.  **Istio Mesh Overview** (`istio_dashboard.json`): Monitor Mesh Traffic (RPS, Latency, Success Rate) and Sidecar Health.
+
+## Latest Activity & Architecture Notes
+
+For detailed architectural decisions regarding OpenTelemetry configuration (e.g., Port Discovery vs Service Discovery), please refer to [need_to_know.md](need_to_know.md).

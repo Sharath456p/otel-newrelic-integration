@@ -1,0 +1,345 @@
+{
+    "name": "Istio Mesh Overview (Prod Grade)",
+    "description": "Comprehensive view of Istio Service Mesh traffic, performance, sidecar resources, and control plane health.",
+    "permissions": "PUBLIC_READ_WRITE",
+    "pages": [
+        {
+            "name": "Mesh Traffic Overview",
+            "description": "High-level golden signals for the entire mesh.",
+            "widgets": [
+                {
+                    "title": "Global Success Rate (HTTP)",
+                    "layout": {
+                        "column": 1,
+                        "row": 1,
+                        "width": 4,
+                        "height": 3
+                    },
+                    "visualization": {
+                        "id": "viz.billboard"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT percentage(count(*), WHERE response_code < 500) as 'Success Rate' FROM Metric WHERE metricName = 'istio_requests_total'"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Global Request Volume (RPS)",
+                    "layout": {
+                        "column": 5,
+                        "row": 1,
+                        "width": 4,
+                        "height": 3
+                    },
+                    "visualization": {
+                        "id": "viz.billboard"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT rate(count(*), 1 second) as 'RPS' FROM Metric WHERE metricName = 'istio_requests_total'"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "P99 Latency (ms)",
+                    "layout": {
+                        "column": 9,
+                        "row": 1,
+                        "width": 4,
+                        "height": 3
+                    },
+                    "visualization": {
+                        "id": "viz.billboard"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT histogram(istio_request_duration_milliseconds_sum / istio_request_duration_milliseconds_count, 100) FROM Metric"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Traffic by Source -> Destination",
+                    "layout": {
+                        "column": 1,
+                        "row": 4,
+                        "width": 8,
+                        "height": 4
+                    },
+                    "visualization": {
+                        "id": "viz.sankey"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT count(*) FROM Metric WHERE metricName = 'istio_requests_total' FACET source_app, destination_app LIMIT 50"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Requests by Response Code",
+                    "layout": {
+                        "column": 9,
+                        "row": 4,
+                        "width": 4,
+                        "height": 4
+                    },
+                    "visualization": {
+                        "id": "viz.pie"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT count(*) FROM Metric WHERE metricName = 'istio_requests_total' FACET response_code"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Service Latency (P99)",
+                    "layout": {
+                        "column": 1,
+                        "row": 8,
+                        "width": 12,
+                        "height": 4
+                    },
+                    "visualization": {
+                        "id": "viz.line"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT average(istio_request_duration_milliseconds_sum) / average(istio_request_duration_milliseconds_count) as 'Avg Latency' FROM Metric FACET destination_app TIMESERIES"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "TCP Bandwidth (Bytes/sec)",
+                    "layout": {
+                        "column": 1,
+                        "row": 12,
+                        "width": 6,
+                        "height": 4
+                    },
+                    "visualization": {
+                        "id": "viz.area"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT rate(sum(istio_tcp_sent_bytes_total) + sum(istio_tcp_received_bytes_total), 1 second) FROM Metric FACET destination_app TIMESERIES"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Active TCP Connections",
+                    "layout": {
+                        "column": 7,
+                        "row": 12,
+                        "width": 6,
+                        "height": 4
+                    },
+                    "visualization": {
+                        "id": "viz.line"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT sum(istio_tcp_connections_opened_total) - sum(istio_tcp_connections_closed_total) FROM Metric FACET destination_app TIMESERIES"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Sidecar Health & Resources",
+            "description": "Monitor the health and resource usage of the Envoy proxies.",
+            "widgets": [
+                {
+                    "title": "Sidecar CPU Usage (Cores)",
+                    "layout": {
+                        "column": 1,
+                        "row": 1,
+                        "width": 6,
+                        "height": 4
+                    },
+                    "visualization": {
+                        "id": "viz.line"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT average(container.cpu.usage) FROM Metric WHERE k8s.container.name = 'istio-proxy' FACET k8s.pod.name TIMESERIES"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Sidecar Memory Usage (Bytes)",
+                    "layout": {
+                        "column": 7,
+                        "row": 1,
+                        "width": 6,
+                        "height": 4
+                    },
+                    "visualization": {
+                        "id": "viz.line"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT average(container.memory.working_set) FROM Metric WHERE k8s.container.name = 'istio-proxy' FACET k8s.pod.name TIMESERIES"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Envoy Active Connections (Upstream)",
+                    "layout": {
+                        "column": 1,
+                        "row": 5,
+                        "width": 6,
+                        "height": 4
+                    },
+                    "visualization": {
+                        "id": "viz.line"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT max(envoy_cluster_upstream_cx_active) FROM Metric FACET k8s.pod.name TIMESERIES"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Envoy Restarts",
+                    "layout": {
+                        "column": 7,
+                        "row": 5,
+                        "width": 6,
+                        "height": 4
+                    },
+                    "visualization": {
+                        "id": "viz.line"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT max(k8s.container.restarts) FROM Metric WHERE k8s.container.name = 'istio-proxy' FACET k8s.pod.name TIMESERIES"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Control Plane (Istiod)",
+            "description": "Health of the Istio Control Plane.",
+            "widgets": [
+                {
+                    "title": "Connected Proxies",
+                    "layout": {
+                        "column": 1,
+                        "row": 1,
+                        "width": 4,
+                        "height": 3
+                    },
+                    "visualization": {
+                        "id": "viz.line"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT max(pilot_xds_push_context_errors) FROM Metric WHERE k8s.pod.name LIKE 'istiod%'"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Config Push Time",
+                    "layout": {
+                        "column": 5,
+                        "row": 1,
+                        "width": 8,
+                        "height": 3
+                    },
+                    "visualization": {
+                        "id": "viz.line"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT average(pilot_xds_push_time_sum) FROM Metric WHERE k8s.pod.name LIKE 'istiod%' TIMESERIES"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Istiod CPU Usage",
+                    "layout": {
+                        "column": 1,
+                        "row": 4,
+                        "width": 6,
+                        "height": 4
+                    },
+                    "visualization": {
+                        "id": "viz.line"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT average(container.cpu.usage) FROM Metric WHERE k8s.pod.name LIKE 'istiod%' FACET k8s.pod.name TIMESERIES"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Istiod Memory Usage",
+                    "layout": {
+                        "column": 7,
+                        "row": 4,
+                        "width": 6,
+                        "height": 4
+                    },
+                    "visualization": {
+                        "id": "viz.line"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT average(container.memory.working_set) FROM Metric WHERE k8s.pod.name LIKE 'istiod%' FACET k8s.pod.name TIMESERIES"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}

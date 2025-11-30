@@ -5,7 +5,7 @@ metadata:
   namespace: flux-system
 spec:
   interval: 1m
-  url: http://git-server.flux-system/repo.git
+  url: http://gitea-http.flux-system.svc.cluster.local:3000/admin/repo.git
   ref:
     branch: main
 ---

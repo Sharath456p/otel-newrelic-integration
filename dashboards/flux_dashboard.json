@@ -1,0 +1,233 @@
+{
+    "name": "Flux CD Overview (Prod Grade)",
+    "description": "Monitor Flux CD reconciliation performance, error rates, and controller health using Controller Runtime metrics.",
+    "permissions": "PUBLIC_READ_WRITE",
+    "pages": [
+        {
+            "name": "Flux Overview",
+            "description": null,
+            "widgets": [
+                {
+                    "title": "Total Reconciliations (Activity)",
+                    "layout": {
+                        "column": 1,
+                        "row": 1,
+                        "width": 4,
+                        "height": 3
+                    },
+                    "visualization": {
+                        "id": "viz.billboard"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT sum(gotk_reconcile_duration_seconds_count) FROM Metric WHERE k8s.namespace.name = 'flux-system'"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Total Reconciliation Errors",
+                    "layout": {
+                        "column": 5,
+                        "row": 1,
+                        "width": 4,
+                        "height": 3
+                    },
+                    "visualization": {
+                        "id": "viz.billboard"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT sum(controller_runtime_reconcile_errors_total) FROM Metric WHERE k8s.namespace.name = 'flux-system'"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Active Workers (Max)",
+                    "layout": {
+                        "column": 9,
+                        "row": 1,
+                        "width": 4,
+                        "height": 3
+                    },
+                    "visualization": {
+                        "id": "viz.billboard"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT max(controller_runtime_active_workers) FROM Metric WHERE k8s.namespace.name = 'flux-system'"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Reconciliation Rate (Ops/min)",
+                    "layout": {
+                        "column": 1,
+                        "row": 4,
+                        "width": 6,
+                        "height": 4
+                    },
+                    "visualization": {
+                        "id": "viz.line"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT rate(sum(gotk_reconcile_duration_seconds_count), 1 minute) as 'Reconciliations/min' FROM Metric WHERE k8s.namespace.name = 'flux-system' FACET kind, name TIMESERIES"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Error Rate (Errors/min)",
+                    "layout": {
+                        "column": 7,
+                        "row": 4,
+                        "width": 6,
+                        "height": 4
+                    },
+                    "visualization": {
+                        "id": "viz.line"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT rate(sum(controller_runtime_reconcile_errors_total), 1 minute) as 'Errors/min' FROM Metric WHERE k8s.namespace.name = 'flux-system' FACET controller TIMESERIES"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Avg Reconciliation Duration (Seconds)",
+                    "layout": {
+                        "column": 1,
+                        "row": 8,
+                        "width": 8,
+                        "height": 4
+                    },
+                    "visualization": {
+                        "id": "viz.line"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT sum(gotk_reconcile_duration_seconds_sum) / sum(gotk_reconcile_duration_seconds_count) as 'Avg Duration' FROM Metric WHERE k8s.namespace.name = 'flux-system' FACET kind, name TIMESERIES"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Reconciliation Distribution by Kind",
+                    "layout": {
+                        "column": 9,
+                        "row": 8,
+                        "width": 4,
+                        "height": 4
+                    },
+                    "visualization": {
+                        "id": "viz.pie"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT sum(gotk_reconcile_duration_seconds_count) FROM Metric WHERE k8s.namespace.name = 'flux-system' FACET kind"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Controller CPU Usage",
+                    "layout": {
+                        "column": 1,
+                        "row": 12,
+                        "width": 6,
+                        "height": 4
+                    },
+                    "visualization": {
+                        "id": "viz.line"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT average(container.cpu.usage) FROM Metric WHERE k8s.namespace.name = 'flux-system' FACET k8s.pod.name TIMESERIES"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Controller Memory Usage",
+                    "layout": {
+                        "column": 7,
+                        "row": 12,
+                        "width": 6,
+                        "height": 4
+                    },
+                    "visualization": {
+                        "id": "viz.line"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT average(container.memory.working_set) FROM Metric WHERE k8s.namespace.name = 'flux-system' FACET k8s.pod.name TIMESERIES"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Controller Saturation (Active Workers)",
+                    "layout": {
+                        "column": 1,
+                        "row": 16,
+                        "width": 6,
+                        "height": 4
+                    },
+                    "visualization": {
+                        "id": "viz.line"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT max(controller_runtime_active_workers) FROM Metric WHERE k8s.namespace.name = 'flux-system' FACET controller TIMESERIES"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "title": "Token Cache Size",
+                    "layout": {
+                        "column": 7,
+                        "row": 16,
+                        "width": 6,
+                        "height": 4
+                    },
+                    "visualization": {
+                        "id": "viz.line"
+                    },
+                    "rawConfiguration": {
+                        "nrqlQueries": [
+                            {
+                                "accountId": 7420509,
+                                "query": "SELECT max(gotk_token_cached_items) FROM Metric WHERE k8s.namespace.name = 'flux-system' FACET name TIMESERIES"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}
